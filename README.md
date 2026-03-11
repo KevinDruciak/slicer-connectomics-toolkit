@@ -8,6 +8,41 @@ By **Kevin Druciak**
 
 An end-to-end toolkit I built for automated neuron segmentation from electron microscopy (EM) volumes, powered by [3D Slicer](https://www.slicer.org/). It includes a custom Slicer extension with a full GUI, command-line batch processing scripts, Jupyter notebooks for quantitative morphology analysis, and detailed project documentation.
 
+## Results
+
+All results below were generated from the [ISBI 2012](https://imagej.net/events/isbi-2012-segmentation-challenge) *Drosophila* serial-section TEM dataset (30 slices, 512x512, 4x4x50 nm).
+
+### Raw EM Data with Ground Truth Membrane Overlay
+
+![Raw EM slice, ground truth membranes, and overlay](docs/images/em_slice_with_overlay.png)
+
+### Segmentation Pipeline Output
+
+Distance transform, watershed seeds, and labeled neuron segments produced by the pipeline:
+
+![Distance transform, seed points, and watershed labels](docs/images/watershed_pipeline.png)
+
+### Final Segmentation
+
+Raw EM alongside the segmentation before and after morphological cleanup:
+
+![Raw EM, before cleanup, after cleanup](docs/images/segmentation_result.png)
+
+### Neuron Morphology Analysis
+
+Per-neuron volume, surface area, and equivalent diameter distributions:
+
+![Volume, surface area, and diameter distributions](docs/images/morphology_distributions.png)
+
+Volume vs. surface area scatter colored by sphericity, and 3D centroid positions:
+
+<p float="left">
+<img src="docs/images/volume_vs_surface_area.png" width="48%" />
+<img src="docs/images/centroid_3d.png" width="48%" />
+</p>
+
+---
+
 ## Background
 
 I developed this toolkit during and after my studies at **Johns Hopkins University**, where I took coursework in connectomics that used 3D Slicer as the primary platform for volumetric image analysis. The courses covered EM-based neural circuit reconstruction, manual and semi-automated segmentation workflows, and quantitative morphology -- all within the Slicer ecosystem.
@@ -24,6 +59,17 @@ That hands-on experience motivated me to build a reusable, scriptable pipeline t
 | **Quantitative metrics** | Volume, surface area, centroid, and sphericity computed per neuron and exported as CSV |
 | **Atlas registration** | Rigid/affine alignment of EM volumes to a reference coordinate frame via BRAINSFit |
 | **Morphology analysis** | Jupyter notebooks with distribution plots, volume-vs-surface-area scatter, and 3D centroid visualization |
+
+## Segmentation Pipeline
+
+The core algorithm I implemented follows this pipeline:
+
+1. **Gaussian smoothing** -- reduces acquisition noise while preserving membrane boundaries
+2. **Adaptive histogram equalization (CLAHE)** -- normalizes contrast across the volume
+3. **Membrane detection** -- thresholds dark membrane regions in the EM intensity space
+4. **Distance-transform seeded watershed** -- partitions cell interiors using local maxima of the distance map as seeds
+5. **Connected-component relabeling** -- ensures each spatially disconnected region gets a unique ID (via `cc3d` for performance)
+6. **Morphological cleanup** -- removes small fragments, fills interior holes, and optionally extracts neurite skeletons
 
 ## Repository Structure
 
@@ -59,17 +105,6 @@ slicer-connectomics-toolkit/
 ├── requirements.txt
 └── LICENSE
 ```
-
-## Segmentation Pipeline
-
-The core algorithm I implemented follows this pipeline:
-
-1. **Gaussian smoothing** -- reduces acquisition noise while preserving membrane boundaries
-2. **Adaptive histogram equalization (CLAHE)** -- normalizes contrast across the volume
-3. **Membrane detection** -- thresholds dark membrane regions in the EM intensity space
-4. **Distance-transform seeded watershed** -- partitions cell interiors using local maxima of the distance map as seeds
-5. **Connected-component relabeling** -- ensures each spatially disconnected region gets a unique ID (via `cc3d` for performance)
-6. **Morphological cleanup** -- removes small fragments, fills interior holes, and optionally extracts neurite skeletons
 
 ## Technology Stack
 
