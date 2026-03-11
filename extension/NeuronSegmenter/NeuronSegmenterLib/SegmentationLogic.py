@@ -48,7 +48,11 @@ class NeuronSegmentationLogic:
             Preprocessed volume with float64 values in [0, 1].
         """
         logger.info(f"Preprocessing: Gaussian sigma={sigma}")
-        smoothed = gaussian_filter(volume.astype(np.float64), sigma=sigma)
+        normalized = volume.astype(np.float64)
+        vmin, vmax = normalized.min(), normalized.max()
+        if vmax > vmin:
+            normalized = (normalized - vmin) / (vmax - vmin)
+        smoothed = gaussian_filter(normalized, sigma=sigma)
 
         chunk_size = max(1, min(volume.shape) // 4)
         equalized = equalize_adapthist(
