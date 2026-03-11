@@ -2,6 +2,8 @@
 """
 Export segmented neurons as individual 3D surface meshes (STL or OBJ).
 
+Author: Kevin Druciak (kevintdruciak@gmail.com)
+
 Usage (run inside 3D Slicer's Python environment):
 
     Slicer --python-script export_neuron_meshes.py \

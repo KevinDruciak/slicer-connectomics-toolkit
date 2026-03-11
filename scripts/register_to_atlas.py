@@ -2,6 +2,8 @@
 """
 Register an EM volume to a reference atlas coordinate frame.
 
+Author: Kevin Druciak (kevintdruciak@gmail.com)
+
 Uses 3D Slicer's BRAINSFit module for rigid and affine registration.
 The output is a resampled volume aligned to the atlas and the computed
 transform, which can be applied to label maps or meshes.

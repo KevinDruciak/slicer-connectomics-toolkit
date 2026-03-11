@@ -1,6 +1,8 @@
 """
 Tests for the NeuronSegmenter extension.
 
+Author: Kevin Druciak (kevintdruciak@gmail.com)
+
 These tests validate the segmentation pipeline using synthetic EM-like
 volumes. They can be run:
 

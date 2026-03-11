@@ -2,6 +2,8 @@
 NeuronSegmenter -- 3D Slicer scripted module for automated neuron segmentation
 from electron microscopy (EM) volumes.
 
+Author: Kevin Druciak (kevintdruciak@gmail.com)
+
 Provides a GUI panel for configuring preprocessing parameters, running
 membrane-based watershed segmentation, and applying morphological cleanup.
 """
@@ -32,11 +34,11 @@ class NeuronSegmenter(ScriptedLoadableModule):
         self.parent.title = "NeuronSegmenter"
         self.parent.categories = ["Segmentation"]
         self.parent.dependencies = []
-        self.parent.contributors = ["Kevin (Johns Hopkins University)"]
+        self.parent.contributors = ["Kevin Druciak (Johns Hopkins University)"]
         self.parent.helpText = (
             "Automated neuron segmentation from EM volumes using membrane "
             "detection, watershed partitioning, and morphological cleanup. "
-            "See <a href='https://github.com/'>the repository</a> for details."
+            "See <a href='https://github.com/KevinDruciak/slicer-connectomics-toolkit'>the repository</a> for details."
         )
         self.parent.acknowledgementText = (
             "Developed as part of connectomics coursework at Johns Hopkins "

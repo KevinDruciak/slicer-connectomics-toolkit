@@ -2,6 +2,8 @@
 """
 Compute per-neuron morphological statistics from a segmentation.
 
+Author: Kevin Druciak (kevintdruciak@gmail.com)
+
 Usage (run inside 3D Slicer's Python environment):
 
     Slicer --python-script compute_segment_stats.py \

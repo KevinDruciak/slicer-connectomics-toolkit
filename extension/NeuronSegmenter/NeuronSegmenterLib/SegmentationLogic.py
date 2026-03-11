@@ -1,6 +1,8 @@
 """
 Core segmentation logic for the NeuronSegmenter extension.
 
+Author: Kevin Druciak (kevintdruciak@gmail.com)
+
 Pipeline:
   1. Gaussian smoothing to reduce acquisition noise
   2. Histogram equalization for consistent contrast

@@ -1,6 +1,8 @@
 """
 Morphological post-processing utilities for neuron segmentation.
 
+Author: Kevin Druciak (kevintdruciak@gmail.com)
+
 Provides helpers for cleaning up label maps produced by the segmentation
 pipeline: small-object removal, hole filling, morphological smoothing,
 and optional skeletonization.

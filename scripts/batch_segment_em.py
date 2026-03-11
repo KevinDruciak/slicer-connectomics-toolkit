@@ -2,6 +2,8 @@
 """
 Batch-process a directory of EM volumes through the NeuronSegmenter pipeline.
 
+Author: Kevin Druciak (kevintdruciak@gmail.com)
+
 Usage (run inside 3D Slicer's Python environment):
 
     Slicer --python-script batch_segment_em.py \

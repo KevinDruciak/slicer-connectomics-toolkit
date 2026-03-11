@@ -1,134 +1,70 @@
-# Automated Segmentation Pipeline
+# Automated Pipeline
 
-This tutorial explains how to use the NeuronSegmenter extension and the batch processing scripts to segment EM volumes automatically.
+Reference documentation for the NeuronSegmenter extension and CLI scripts.
 
-## Option 1: Interactive (GUI)
+## NeuronSegmenter Extension (GUI)
 
-### Using the NeuronSegmenter Extension
-
-1. Load your EM volume in 3D Slicer
-2. Switch to **Segmentation > NeuronSegmenter** in the module dropdown
-3. Configure parameters:
+The extension adds a panel to 3D Slicer under **Segmentation > NeuronSegmenter** with the following parameters:
 
 | Parameter | Default | Description |
-|-----------|---------|-------------|
-| **Gaussian Sigma** | 1.0 | Smoothing strength. Increase for noisy data. |
-| **Membrane Threshold** | 128 | Intensity cutoff (0-255). Lower = more membrane detected. |
-| **Min Segment Size** | 500 | Voxels. Segments smaller than this are discarded. |
-| **Fill Holes** | On | Fill interior holes in each segment. |
+|---|---|---|
+| **Gaussian Sigma** | 1.0 | Smoothing strength. Higher values reduce noise but blur membrane boundaries. |
+| **Membrane Threshold** | 128 | Intensity cutoff (0-255 scale). Lower values detect more membrane. |
+| **Min Segment Size** | 500 | Minimum voxels per segment. Smaller segments are discarded. |
+| **Fill Holes** | On | Fills interior holes in each segment after watershed. |
 
-4. Select your input volume in the **Input EM Volume** dropdown
-5. Optionally select or create an output segmentation node
-6. Click **Run Segmentation**
-7. Inspect the result in the slice views and 3D view
+### Parameter Tuning
 
-### Tuning Parameters
+- Over-segmentation (too many fragments): increase Min Segment Size or Gaussian Sigma
+- Under-segmentation (neurons merged): raise Membrane Threshold or decrease Gaussian Sigma
+- Missed membranes: lower Membrane Threshold
 
-- **Too many small fragments?** Increase **Min Segment Size** or increase **Gaussian Sigma**
-- **Membranes not detected?** Lower the **Membrane Threshold**
-- **Neurons merged together?** Raise the **Membrane Threshold** or decrease **Gaussian Sigma**
-- **Holes inside neurons?** Make sure **Fill Holes** is checked
+## CLI Scripts
 
-## Option 2: Command Line (Batch Processing)
+All scripts run via `Slicer --python-script` and accept standard argparse flags.
 
 ### batch_segment_em.py
 
-Process an entire directory of EM volumes:
-
 ```bash
-/path/to/Slicer --python-script scripts/batch_segment_em.py \
-    --input-dir /data/em_stacks \
-    --output-dir /data/segmented \
-    --sigma 1.0 \
-    --threshold 128 \
-    --min-size 500
+Slicer --python-script scripts/batch_segment_em.py \
+    --input-dir ./data/em_stacks \
+    --output-dir ./output/labels \
+    --sigma 1.0 --threshold 128 --min-size 500
 ```
 
-**Arguments:**
-
-| Flag | Required | Description |
-|------|----------|-------------|
-| `--input-dir` | Yes | Directory with `.nrrd`, `.tiff`, or `.nii` files |
-| `--output-dir` | Yes | Where to save label maps |
-| `--sigma` | No | Gaussian sigma (default: 1.0) |
-| `--threshold` | No | Membrane threshold (default: 128) |
-| `--min-size` | No | Minimum segment size (default: 500) |
-
-**Output:** One `*_labels.nrrd` file per input volume.
+Processes every `.nrrd`, `.tiff`, or `.nii` file in the input directory. Outputs one `*_labels.nrrd` label map per volume.
 
 ### compute_segment_stats.py
 
-After segmentation, compute per-neuron metrics:
-
 ```bash
-/path/to/Slicer --python-script scripts/compute_segment_stats.py \
-    --segmentation /data/segmented/sample_labels.nrrd \
-    --reference-volume /data/em_stacks/sample.nrrd \
-    --output-csv /data/results/stats.csv
+Slicer --python-script scripts/compute_segment_stats.py \
+    --segmentation ./output/labels/sample_labels.nrrd \
+    --reference-volume ./data/em_stacks/sample.nrrd \
+    --output-csv ./output/stats.csv
 ```
 
-The output CSV contains: segment ID, name, voxel count, volume (mm^3), surface area (mm^2), and centroid coordinates.
+Outputs a CSV with columns: segment_id, segment_name, voxel_count, volume_mm3, surface_area_mm2, centroid_ras_x/y/z.
 
 ### export_neuron_meshes.py
 
-Export each neuron as a 3D surface mesh:
-
 ```bash
-/path/to/Slicer --python-script scripts/export_neuron_meshes.py \
-    --segmentation /data/segmented/sample_labels.nrrd \
-    --output-dir /data/meshes \
-    --format stl \
-    --smoothing-iterations 25
+Slicer --python-script scripts/export_neuron_meshes.py \
+    --segmentation ./output/labels/sample_labels.nrrd \
+    --output-dir ./output/meshes \
+    --format stl --smoothing-iterations 25
 ```
 
-This produces one `neuron_XXXX.stl` (or `.obj`) file per labeled neuron.
+Produces one `neuron_XXXX.stl` (or `.obj`) per labeled neuron using VTK marching cubes with Laplacian smoothing.
 
 ### register_to_atlas.py
 
-Align an EM volume to a reference coordinate frame:
-
 ```bash
-/path/to/Slicer --python-script scripts/register_to_atlas.py \
-    --moving /data/em_stacks/sample.nrrd \
-    --fixed /data/atlas/reference.nrrd \
-    --output-volume /data/registered/sample_registered.nrrd \
-    --output-transform /data/registered/transform.h5 \
+Slicer --python-script scripts/register_to_atlas.py \
+    --moving ./data/em_stacks/sample.nrrd \
+    --fixed ./data/atlas/reference.nrrd \
+    --output-volume ./output/registered.nrrd \
+    --output-transform ./output/transform.h5 \
     --registration-type affine
 ```
 
-## Full Pipeline Example
-
-A typical end-to-end workflow:
-
-```bash
-INPUT=/data/em_stacks
-OUTPUT=/data/results
-SLICER=/path/to/Slicer
-
-# 1. Segment all volumes
-$SLICER --python-script scripts/batch_segment_em.py \
-    --input-dir $INPUT --output-dir $OUTPUT/labels
-
-# 2. Compute statistics
-for f in $OUTPUT/labels/*.nrrd; do
-    base=$(basename "$f" _labels.nrrd)
-    $SLICER --python-script scripts/compute_segment_stats.py \
-        --segmentation "$f" \
-        --reference-volume "$INPUT/${base}.nrrd" \
-        --output-csv "$OUTPUT/stats/${base}_stats.csv"
-done
-
-# 3. Export meshes
-for f in $OUTPUT/labels/*.nrrd; do
-    base=$(basename "$f" _labels.nrrd)
-    $SLICER --python-script scripts/export_neuron_meshes.py \
-        --segmentation "$f" \
-        --output-dir "$OUTPUT/meshes/$base" \
-        --format stl
-done
-```
-
-## Next Steps
-
-- [Visualization and Export](04_visualization_and_export.md) -- render results and create figures
-- [Notebooks](../notebooks/) -- interactive analysis in Jupyter
+Wraps BRAINSFit for rigid, affine, or B-spline registration.

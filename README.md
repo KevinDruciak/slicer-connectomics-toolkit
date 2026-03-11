@@ -2,162 +2,122 @@
 
 **Neuron Segmentation and Connectomics Analysis with 3D Slicer**
 
-A comprehensive toolkit for automated neuron segmentation from electron microscopy (EM) volumes, built on [3D Slicer](https://www.slicer.org/). This repository includes a custom Slicer extension, batch-processing scripts, Jupyter notebooks for analysis, and step-by-step tutorials -- everything needed to go from raw EM image stacks to quantified, visualizable neuron reconstructions.
+By **Kevin Druciak**
 
 ---
 
-## About
+An end-to-end toolkit I built for automated neuron segmentation from electron microscopy (EM) volumes, powered by [3D Slicer](https://www.slicer.org/). It includes a custom Slicer extension with a full GUI, command-line batch processing scripts, Jupyter notebooks for quantitative morphology analysis, and detailed project documentation.
+
+## Background
 
 I developed this toolkit during and after my studies at **Johns Hopkins University**, where I took coursework in connectomics that used 3D Slicer as the primary platform for volumetric image analysis. The courses covered EM-based neural circuit reconstruction, manual and semi-automated segmentation workflows, and quantitative morphology -- all within the Slicer ecosystem.
 
-That hands-on experience motivated me to build a reusable, scriptable pipeline that automates the most time-consuming parts of the connectomics workflow while staying fully integrated with Slicer's visualization and data management capabilities.
+That hands-on experience motivated me to build a reusable, scriptable pipeline that automates the most labor-intensive parts of the connectomics workflow while staying fully integrated with Slicer's visualization and data management capabilities.
 
-## Key Features
+## What This Toolkit Does
 
-- **Custom Slicer Extension** -- `NeuronSegmenter` adds a dedicated panel to 3D Slicer for membrane-based neuron segmentation with configurable preprocessing and post-processing
-- **Batch Processing** -- segment entire directories of EM stacks from the command line via `Slicer --python-script`
-- **Mesh Export** -- extract individual neuron surfaces as STL/OBJ files for downstream analysis or 3D printing
-- **Quantitative Metrics** -- compute volume, surface area, and centroid for every segmented neuron, exported as CSV
-- **Atlas Registration** -- align EM volumes to a reference coordinate frame using Slicer's registration modules
-- **Jupyter Notebooks** -- interactive exploration, segmentation walkthroughs, and morphology analysis outside of Slicer
-- **Tutorials** -- four Markdown guides covering installation, manual segmentation, the automated pipeline, and visualization/export
+| Capability | Implementation |
+|---|---|
+| **Interactive neuron segmentation** | Custom `NeuronSegmenter` Slicer extension with configurable preprocessing, membrane-based watershed, and morphological cleanup |
+| **Batch processing** | CLI scripts that segment entire directories of EM stacks via `Slicer --python-script` |
+| **Mesh export** | Per-neuron surface extraction as STL/OBJ using VTK marching cubes with Laplacian smoothing |
+| **Quantitative metrics** | Volume, surface area, centroid, and sphericity computed per neuron and exported as CSV |
+| **Atlas registration** | Rigid/affine alignment of EM volumes to a reference coordinate frame via BRAINSFit |
+| **Morphology analysis** | Jupyter notebooks with distribution plots, volume-vs-surface-area scatter, and 3D centroid visualization |
 
 ## Repository Structure
 
 ```
 slicer-connectomics-toolkit/
-├── README.md
-├── LICENSE
-├── .gitignore
-├── requirements.txt
-│
-├── extension/                       # Custom 3D Slicer Extension
-│   └── NeuronSegmenter/
-│       ├── CMakeLists.txt
-│       ├── NeuronSegmenter.py
-│       ├── NeuronSegmenterLib/
-│       │   ├── __init__.py
-│       │   ├── SegmentationLogic.py
-│       │   └── MorphologyUtils.py
-│       ├── Resources/Icons/
-│       └── Testing/
-│           └── test_segmentation.py
+├── extension/NeuronSegmenter/       Custom 3D Slicer scripted module
+│   ├── NeuronSegmenter.py           GUI panel and orchestration
+│   ├── NeuronSegmenterLib/
+│   │   ├── SegmentationLogic.py     Preprocessing, membrane detection, watershed
+│   │   └── MorphologyUtils.py       Cleanup, hole filling, skeletonization
+│   └── Testing/
+│       └── test_segmentation.py     Unit tests (9 tests, no Slicer dependency)
 │
 ├── scripts/
-│   ├── batch_segment_em.py
-│   ├── export_neuron_meshes.py
-│   ├── compute_segment_stats.py
-│   └── register_to_atlas.py
+│   ├── batch_segment_em.py          Batch-process EM volumes
+│   ├── export_neuron_meshes.py      Export neurons as STL/OBJ meshes
+│   ├── compute_segment_stats.py     Per-neuron statistics to CSV
+│   └── register_to_atlas.py         BRAINSFit registration wrapper
 │
 ├── notebooks/
 │   ├── 01_em_volume_exploration.ipynb
 │   ├── 02_neuron_segmentation_pipeline.ipynb
 │   └── 03_morphology_analysis.ipynb
 │
-├── tutorials/
+├── tutorials/                       Project documentation
 │   ├── 01_getting_started.md
 │   ├── 02_manual_segmentation.md
 │   ├── 03_automated_pipeline.md
 │   └── 04_visualization_and_export.md
 │
-├── sample_data/
-│   └── README.md
-│
-└── docs/
-    ├── architecture.md
-    └── references.md
+├── sample_data/                     Dataset links and test volume
+├── docs/                            Architecture diagrams and references
+├── requirements.txt
+└── LICENSE
 ```
 
-## Quick Start
+## Segmentation Pipeline
 
-### Prerequisites
+The core algorithm I implemented follows this pipeline:
 
-- [3D Slicer](https://download.slicer.org/) 5.2 or later
-- Python 3.9+ (bundled with Slicer; standalone Python needed only for notebooks)
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/<your-username>/slicer-connectomics-toolkit.git
-cd slicer-connectomics-toolkit
-```
-
-### 2. Install Python Dependencies (for notebooks)
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Load the Extension in 3D Slicer
-
-1. Open 3D Slicer
-2. Go to **Edit > Application Settings > Modules**
-3. Add the path to `extension/NeuronSegmenter/` as an additional module path
-4. Restart Slicer -- the **NeuronSegmenter** module will appear under the *Segmentation* category
-
-### 4. Run a Script
-
-```bash
-/path/to/Slicer --python-script scripts/batch_segment_em.py --input-dir ./sample_data --output-dir ./output
-```
-
-### 5. Explore the Notebooks
-
-```bash
-jupyter notebook notebooks/
-```
-
-## Datasets
-
-This toolkit is designed to work with publicly available EM segmentation benchmarks:
-
-| Dataset | Description | Link |
-|---------|-------------|------|
-| **CREMI** | Challenge on circuit reconstruction from EM images | [cremi.org](https://cremi.org/) |
-| **SNEMI3D** | 3D segmentation of neurites in EM images | [snemi3d.grand-challenge.org](https://snemi3d.grand-challenge.org/) |
-| **ISBI 2012** | EM segmentation challenge (serial section TEM) | [ISBI Challenge](https://imagej.net/events/isbi-2012-segmentation-challenge) |
-
-A minimal synthetic test volume (`mini_em_stack.nrrd`) is included in `sample_data/` for quick testing. See [`sample_data/README.md`](sample_data/README.md) for download instructions for full datasets.
+1. **Gaussian smoothing** -- reduces acquisition noise while preserving membrane boundaries
+2. **Adaptive histogram equalization (CLAHE)** -- normalizes contrast across the volume
+3. **Membrane detection** -- thresholds dark membrane regions in the EM intensity space
+4. **Distance-transform seeded watershed** -- partitions cell interiors using local maxima of the distance map as seeds
+5. **Connected-component relabeling** -- ensures each spatially disconnected region gets a unique ID (via `cc3d` for performance)
+6. **Morphological cleanup** -- removes small fragments, fills interior holes, and optionally extracts neurite skeletons
 
 ## Technology Stack
 
 | Component | Role |
-|-----------|------|
-| [3D Slicer](https://www.slicer.org/) | Platform for visualization, segmentation, and registration |
-| [VTK](https://vtk.org/) | Mesh generation and 3D rendering |
+|---|---|
+| [3D Slicer](https://www.slicer.org/) | Visualization, segmentation, and registration platform |
+| [VTK](https://vtk.org/) | Mesh generation (marching cubes) and 3D rendering |
 | [ITK](https://itk.org/) | Image filtering and registration backends |
 | [scikit-image](https://scikit-image.org/) | Watershed, morphology, and connected components |
 | [connected-components-3d](https://github.com/seung-lab/connected-components-3d) | Fast 3D connected-component labeling |
 | [nibabel](https://nipy.org/nibabel/) / [pynrrd](https://github.com/mhe/pynrrd) | Reading/writing NIfTI and NRRD volumes |
 | [matplotlib](https://matplotlib.org/) / [pyvista](https://docs.pyvista.org/) | 2D/3D visualization in notebooks |
 
+## Datasets
+
+This toolkit was developed against publicly available EM segmentation benchmarks:
+
+| Dataset | Description | Link |
+|---|---|---|
+| **ISBI 2012** | 30-slice serial section TEM of *Drosophila* VNC with membrane labels | [ISBI Challenge](https://imagej.net/events/isbi-2012-segmentation-challenge) |
+| **CREMI** | 1250x1250x125 EM volumes of *Drosophila* brain with neuron + synapse annotations | [cremi.org](https://cremi.org/) |
+| **SNEMI3D** | 1024x1024x100 EM of mouse cortex neurites | [snemi3d.grand-challenge.org](https://snemi3d.grand-challenge.org/) |
+
+See [`sample_data/README.md`](sample_data/README.md) for details.
+
 ## Screenshots
 
-> *Screenshots will be added after running the pipeline on sample data.*
+> *Screenshots will be added after running the pipeline on benchmark data.*
 
 | EM Slice with Overlay | 3D Neuron Rendering | Segmentation Metrics |
-|:---------------------:|:-------------------:|:--------------------:|
+|:---:|:---:|:---:|
 | *coming soon* | *coming soon* | *coming soon* |
 
-## Tutorials
+## Project Documentation
 
-1. [Getting Started](tutorials/01_getting_started.md) -- installation, loading data, first look
-2. [Manual Segmentation](tutorials/02_manual_segmentation.md) -- using Segment Editor for ground truth
-3. [Automated Pipeline](tutorials/03_automated_pipeline.md) -- running batch segmentation scripts
-4. [Visualization and Export](tutorials/04_visualization_and_export.md) -- volume rendering, mesh export, figures
-
-## Documentation
-
-- [Architecture Overview](docs/architecture.md) -- how the extension, scripts, and notebooks fit together
-- [References](docs/references.md) -- academic papers, Slicer documentation, and course materials
+- [Getting Started](tutorials/01_getting_started.md) -- prerequisites and setup
+- [Manual Segmentation](tutorials/02_manual_segmentation.md) -- ground truth creation workflow
+- [Automated Pipeline](tutorials/03_automated_pipeline.md) -- CLI usage and parameter reference
+- [Visualization and Export](tutorials/04_visualization_and_export.md) -- rendering, mesh export, and figure generation
+- [Architecture Overview](docs/architecture.md) -- component diagram and dependency graph
+- [References](docs/references.md) -- academic papers and Slicer documentation
 
 ## License
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+MIT License. See [LICENSE](LICENSE) for details.
 
-## Acknowledgments
+## Author
 
-- The [3D Slicer](https://www.slicer.org/) community and the Slicer developer documentation
-- Johns Hopkins University Department of Biomedical Engineering for connectomics coursework
-- The CREMI, SNEMI3D, and ISBI 2012 challenge organizers for public benchmark datasets
-- Funke et al., Turaga et al., and the broader connectomics research community
+**Kevin Druciak** -- Johns Hopkins University
+- GitHub: [KevinDruciak](https://github.com/KevinDruciak)
+- Email: kevintdruciak@gmail.com
