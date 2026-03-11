@@ -26,12 +26,16 @@ env/
 .DS_Store
 Thumbs.db
 
-# Large data files (keep sample_data/mini_em_stack.nrrd)
+# Large data files
 *.nii
 *.nii.gz
 *.dcm
+*.zip
 data/
 output/
+
+# Keep ISBI 2012 dataset in sample_data
+!sample_data/isbi2012/*.tif
 
 # Slicer scene files
 *.mrml

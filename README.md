@@ -54,7 +54,7 @@ slicer-connectomics-toolkit/
 │   ├── 03_automated_pipeline.md
 │   └── 04_visualization_and_export.md
 │
-├── sample_data/                     Dataset links and test volume
+├── sample_data/isbi2012/            ISBI 2012 Drosophila ssTEM dataset
 ├── docs/                            Architecture diagrams and references
 ├── requirements.txt
 └── LICENSE
@@ -83,25 +83,16 @@ The core algorithm I implemented follows this pipeline:
 | [nibabel](https://nipy.org/nibabel/) / [pynrrd](https://github.com/mhe/pynrrd) | Reading/writing NIfTI and NRRD volumes |
 | [matplotlib](https://matplotlib.org/) / [pyvista](https://docs.pyvista.org/) | 2D/3D visualization in notebooks |
 
-## Datasets
+## Dataset
 
-This toolkit was developed against publicly available EM segmentation benchmarks:
+The notebooks and pipeline run on the **ISBI 2012 EM Segmentation Challenge** dataset, included in `sample_data/isbi2012/`:
 
-| Dataset | Description | Link |
-|---|---|---|
-| **ISBI 2012** | 30-slice serial section TEM of *Drosophila* VNC with membrane labels | [ISBI Challenge](https://imagej.net/events/isbi-2012-segmentation-challenge) |
-| **CREMI** | 1250x1250x125 EM volumes of *Drosophila* brain with neuron + synapse annotations | [cremi.org](https://cremi.org/) |
-| **SNEMI3D** | 1024x1024x100 EM of mouse cortex neurites | [snemi3d.grand-challenge.org](https://snemi3d.grand-challenge.org/) |
+- 30-slice serial section TEM of *Drosophila* first instar larva ventral nerve cord
+- 512x512 pixels per slice, 4x4x50 nm voxel resolution
+- Expert-annotated membrane ground truth labels
+- Source: [ISBI 2012 Challenge](https://imagej.net/events/isbi-2012-segmentation-challenge)
 
-See [`sample_data/README.md`](sample_data/README.md) for details.
-
-## Screenshots
-
-> *Screenshots will be added after running the pipeline on benchmark data.*
-
-| EM Slice with Overlay | 3D Neuron Rendering | Segmentation Metrics |
-|:---:|:---:|:---:|
-| *coming soon* | *coming soon* | *coming soon* |
+See [`sample_data/README.md`](sample_data/README.md) for additional public datasets.
 
 ## Project Documentation
 
