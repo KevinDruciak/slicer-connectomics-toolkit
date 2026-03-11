@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large data files (keep sample_data/mini_em_stack.nrrd)
+*.nii
+*.nii.gz
+*.dcm
+data/
+output/
+
+# Slicer scene files
+*.mrml
+*.mrb
+
+# Logs
+*.log
